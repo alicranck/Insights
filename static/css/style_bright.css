@@ -1,0 +1,143 @@
+body{
+	width:100%;
+	margin: auto;
+}
+
+#topBar{
+	background-color: white ;
+  color: #33cccc;
+	margin: 0px ;
+}
+
+#brand{
+  color: #33cccc;
+  font-size: 26px ;
+}
+
+#toggler{
+  color:#33cccc ;
+  border-color: #33cccc
+}
+
+#navbarNav{
+  color:#33cccc ;
+}
+
+.wellcome{
+	border-radius: 5px;
+	padding: 40px;
+	margin: 75px;
+	color: #33cccc;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(255, 255, 255, 0.9);
+	align-self: center;
+}
+
+.login{
+	border-radius: 25px;
+	padding: 35px;
+	margin: 100px;
+	margin-left: 275px;
+	margin-right: 275px;
+	color: #33cccc;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(255, 255, 255, 1);
+	align-self: center;
+}
+
+#button{
+  color: inherit;
+  border-color: #33cccc ;
+  margin: auto;
+}
+
+#form{
+  border-color: #33cccc;
+  color: #33cccc;
+}
+
+.small{
+  color: inherit;
+}
+
+.info{
+	border-radius: 0px 10px 10px 10px;
+	padding: 35px;
+	margin: 30px;
+	margin-top: 0px;
+	color: #33cccc;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(255, 255, 255, 1);
+	align-self: center;
+}
+
+#infoNav{
+	margin-top: 30px;
+	margin-bottom: 0px;
+	color: #33cccc;
+}
+
+#infoNavItem{
+	background-color: rgba(255, 255, 255, 1);
+	color: white;
+	padding: 10px;
+	margin: 0px ;
+	margin-top: 30px;
+  border: 0px ;
+}
+
+#infoNavItem:hover{
+  background-color: rgba(200, 200, 200, 1);
+}
+
+#infoNavItem:focus{
+  background-color: rgba(235, 235, 235, 1);
+}
+
+.bg{
+	min-width: 100%;
+	min-height: 100%;
+	margin: 0px;
+	position:absolute;
+	background-size: cover;
+	background-attachment: fixed;
+}
+
+#bgwellcome{
+	background-image: url("../img/bg_image.jpg");
+}
+
+#bglogin{
+	background-image: url("../img/loginbg.jpg");
+}
+
+#bgabout{
+	background-image: url("../img/aboutbg.jpg");
+}
+
+#bginfo{
+	background-image: url("../img/infobg.jpg");
+}
+
+.main{
+	position: sticky;
+}
+
+.center{
+	margin: auto;
+	text-align: center;
+}
+.navBar{
+	width:100%;
+	position: fixed;
+  top: 0;
+	background-color: grey;
+}
+
+
+#toolbarHeader{
+	font-family: Arial ;
+}

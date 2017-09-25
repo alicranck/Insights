@@ -1,0 +1,22 @@
+<div class="bg" id="bginfo">
+
+  <nav aria-label="info pagination" style="margin-left:30px">
+    <ul class="pagination pagination-lg justify-content-left" id="infoNav">
+      <li class="page-item"><a class="navbar-brand page-link" id="infoNavItem" href="patientInfo/details" data-toggle="tooltip" data-placement="bottom" title="Personal Details">
+            <img src="../static/img/details_dark.svg" width="50" height="50" alt="">
+          </a>
+      </li>
+      <li class="page-item"><a class="navbar-brand page-link" id="infoNavItem" href="patientInfo/history" data-toggle="tooltip" data-placement="bottom" title="Patient History">
+                <img src="../static/img/history_dark.svg" width="50" height="50" alt="">
+              </a>
+      </li>
+      <li class="page-item"><a class="page-link" id="infoNavItem" href="patientInfo/status" data-toggle="tooltip" data-placement="bottom" title="Status">
+                    <img src="../static/img/status_dark.svg" width="50" height="50" alt="">
+                  </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="info" ui-view='info'>
+  </div>
+
+</div>

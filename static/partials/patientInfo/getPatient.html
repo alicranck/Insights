@@ -1,0 +1,13 @@
+<div class="bg" id="bginfo">
+
+  <div class="login" ng-app="myAppPatientInfo" ng-controller="patientInfoCtrl">
+    <form>
+      <div class="form-group" style="margin-left:45px; margin-right:45px">
+        <p>Wellcome {{user.name}}, <br> To access patient information enter ID and press 'Get'</p>
+        <input type="number" class="form-control" id="patientID" ng-model="request.id" aria-describedby="IDHelp" placeholder="Enter ID">
+      </div>
+      <button type="submit" ng-click="getPatient()" id="button" class="btn btn-outline-light" role="button" style="display:block;">Get</button>
+      <p>{{message}}</p>
+  </div>
+
+</div>

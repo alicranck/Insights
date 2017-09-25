@@ -1,0 +1,23 @@
+{
+  "name": "FlaskApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "angular": "1.5.5",
+    "zone.js": "0.7.4",
+    "angular-route": "1.5.5",
+    "angular-core": "^0.0.5" ,
+    "angular-aria": "1.5.5",
+    "angular-animate": "*1.5.5",
+    "angular-messages": "1.5.5",
+    "angular-material": "^1.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

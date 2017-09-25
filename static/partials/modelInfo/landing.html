@@ -1,0 +1,22 @@
+<div class="bg" id="bginfo">
+
+  <nav aria-label="info pagination" style="margin-left:30px">
+    <ul class="pagination pagination-lg justify-content-left" id="infoNav">
+      <li class="page-item"><a class="navbar-brand page-link" id="infoNavItem" href="modelInfo/models" data-toggle="tooltip" data-placement="bottom" title="Model Information">
+            <img src="../static/img/model.svg" width="50" height="50" alt="">
+          </a>
+      </li>
+      <li class="page-item"><a class="navbar-brand page-link" id="infoNavItem" href="modelInfo/clusters" data-toggle="tooltip" data-placement="bottom" title="Clusters Information">
+                <img src="../static/img/clusters.svg" width="50" height="50" alt="">
+              </a>
+      </li>
+      <li class="page-item"><a class="page-link" id="infoNavItem" href="modelInfo/stats" data-toggle="tooltip" data-placement="bottom" title="General Statistics">
+                    <img src="../static/img/stats.svg" width="50" height="50" alt="">
+                  </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="info" ui-view='modelInfoView'>
+  </div>
+
+</div>

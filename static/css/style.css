@@ -1,0 +1,115 @@
+body{
+	width:100%;
+	margin: auto;
+}
+
+#topBar{
+	background-color: #33cccc ;
+	margin: 0px ;
+}
+
+#brand{
+  color: white;
+  font-size: 26px ;
+}
+
+.wellcome{
+	border-radius: 5px;
+	padding: 40px;
+	margin: 75px;
+	color: white;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(0, 204, 204, 0.7);
+	align-self: center;
+}
+
+.login{
+	border-radius: 25px;
+	padding: 35px;
+	margin: 100px;
+	margin-left: 275px;
+	margin-right: 275px;
+	color: white;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(0, 204, 204, 0.7);
+	align-self: center;
+}
+
+#button{
+	color:white;
+}
+
+.info{
+	border-radius: 0px 10px 10px 10px;
+	padding: 35px;
+	margin: 30px;
+	margin-top: 0px;
+	color: white;
+	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
+	vertical-align: middle;
+	background-color: rgba(0, 204, 204, 0.7);
+	align-self: center;
+}
+
+#infoNav{
+	margin-top: 30px;
+	margin-bottom: 0px;
+	color: white;
+}
+
+#infoNavItem{
+	background-color: rgba(0, 204, 204, 0.7);
+	border-color: rgba(0, 204, 204, 1);
+	color: white;
+	padding: 10px;
+	margin: 0px ;
+	margin-top: 30px;
+	border: 0px;
+}
+
+.bg{
+	min-width: 100%;
+	min-height: 100%;
+	margin: 0px;
+	position:absolute;
+	background-size: cover;
+	background-attachment: fixed;
+}
+
+#bgwellcome{
+	background-image: url("../img/bg_image.jpg");
+}
+
+#bglogin{
+	background-image: url("../img/loginbg.jpg");
+}
+
+#bgabout{
+	background-image: url("../img/aboutbg.jpg");
+}
+
+#bginfo{
+	background-image: url("../img/infobg.jpg");
+}
+
+.main{
+	position: sticky;
+}
+
+.center{
+	margin: auto;
+	text-align: center;
+}
+.navBar{
+	width:100%;
+	position: fixed;
+  top: 0;
+	background-color: grey;
+}
+
+
+#toolbarHeader{
+	font-family: Arial ;
+}

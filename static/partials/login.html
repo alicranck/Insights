@@ -1,0 +1,17 @@
+<div class="bg" id="bglogin">
+  <div class="login" ng-app="myAppLogin" ng-controller="loginCtrl" ng-model="creds">
+    <form>
+      <div class="form-group" style="margin-left:30px; margin-right:30px">
+        <label for="InputID">ID</label>
+        <input type="number" class="form-control" ng-model="creds.id" aria-describedby="IDHelp" placeholder="Enter ID">
+      </div>
+      <div class="form-group" style="margin-left:30px; margin-right:30px">
+        <label for="InputPassword">Password</label>
+        <input type="password" class="form-control" id="InputPassword" ng-model="creds.password" placeholder="Enter Password">
+        <small class="small">Your ID and Password will not be stored anywhere on this computer.
+        you will be logged out upon leaving the site.</small>
+      </div>
+      <button type="submit" id="button" ng-click="loginUser()" class="btn btn-outline-light" role="button" style="display:block;">Submit</button>
+      <p style="color:red">{{message}}</p>
+    </form>
+  </div>

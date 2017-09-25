@@ -1,0 +1,11 @@
+<h1>New Patient</h1>
+<div ng-app="myAppNewPatient" ng-controller="newCtrl" ng-model="patient">
+  <p>{{"Current patient: "+patient.id+" "+patient.firstName+" "+patient.lastName}}</p>
+
+  <h3>insert patient</h3>
+  <p>patient ID<input type="text" ng-model="patient.id" placeholder="enter ID"></p>
+  <p>patient first name<input type="text" ng-model="patient.firstName" placeholder="enter first name"></p>
+  <p>patient last name<input type="text" ng-model="patient.lastName" placeholder="enter last name"></p>
+  <md-button class="md-raised md-primary" ng-click="insertPatient()">Insert</md-button>
+  <p>{{message.data.message}}</p>
+</div>
