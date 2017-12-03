@@ -14,7 +14,7 @@ myApp.run(function($rootScope) {
   }
 })
 
-myApp.controller('rootCtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
+myApp.controller('rootCtrl', ['$scope', '$rootScope', '$transitions', function($scope, $rootScope, $transitions) {
 
 
 
@@ -63,6 +63,7 @@ myApp.config(function($routeProvider, $locationProvider, $stateProvider) {
       views: {
         'info': {
           templateUrl: '/static/partials/patientInfo/patientHistory.html',
+          controller: 'historyCtrl',
         }
       },
       protected: true,

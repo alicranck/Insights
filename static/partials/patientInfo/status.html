@@ -1,1 +1,8 @@
-<p>some more content</p>
+<div ng-app="myAppPatientInfo" ng-controller="statusCtrl">
+  <h5>Mortality prediction: {{status.mortality_prediction*100 | number:0}}%</h5><br>
+  <h5>3 Day mortality prediction: {{status.days_prediction*100 | number:0}}%</h5><br>
+  <h5>Cluster: {{status.cluster}}</h5><br>
+  <h5>Last day measurements: </h5>
+  <ul id="measurements"></ul>
+
+</div>

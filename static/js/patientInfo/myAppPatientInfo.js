@@ -6,12 +6,21 @@ var myApp = angular.module('myAppPatientInfo', [
 
 myApp.factory('getCurrentPatient', ['$http', function($http) {
   var currentPatient = {
-    id: "",
-    name: "",
-    dob: "",
-    admission: "",
-    gender: "",
-  };
+    details: {
+      adm_num: "",
+      age: "",
+      adm_date: "",
+      gender: "",
+    },
+    history: {
+      mortality_predictions: [],
+    },
+    status: {
+      mortality_prediction: '',
+      cluster: '',
+    }
+
+  }
 
   return {
     currentPatient: currentPatient
@@ -36,14 +45,20 @@ myApp.controller('patientInfoCtrl', ['$scope', '$http', '$state', 'getCurrentPat
       }
     }).then(function(response) {
       if (response.data != "null") {
-        getCurrentPatient.currentPatient = response.data;
+        getCurrentPatient.currentPatient.details = JSON.parse(response.data.details);
+        getCurrentPatient.currentPatient.history = JSON.parse(response.data.history);
+        getCurrentPatient.currentPatient.status = JSON.parse(response.data.status);
+        getCurrentPatient.currentPatient.details['adm_num'] = $scope.request.id;
+        if (getCurrentPatient.currentPatient.details.gender == 0) {
+          getCurrentPatient.currentPatient.details.gender = "Male";
+        } else {
+          getCurrentPatient.currentPatient.details.gender = "Female"
+        }
         $state.go('patientInfo.details');
       } else {
         $scope.message = "Patient does not exist in records"
       }
-    }, function(error) {
-      $scope.message = error;
-    })
+    }, function(error) {})
   };
 
 }])

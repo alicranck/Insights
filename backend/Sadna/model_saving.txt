@@ -1,0 +1,296 @@
+### need to install xgboost and replace paths to your computer ###
+
+import pymongo
+from pymongo import MongoClient
+import pickle
+client = MongoClient()
+db=client.icu_db
+
+#build and save clustering model
+def make_clusters(n,db):
+    df=pd.DataFrame(list(db.all_feats_collection.find()))
+    df=df[df['dayNum']==1]
+    #df=df.drop(['temp_adm_num','isMortDay'],axis=1)
+    df=df.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore')
+    df=df.drop([x for x in df.columns if 'KCAL' in x],axis=1)
+    df['chronic-category']=(df['chronic-category']>0).astype(int)
+    #X=np.array(df)
+    df=df.drop([x for x in df.columns if 'MortDay' in x or '_id' in x or 'Unnamed' in x or 'dayNum' in x],axis=1) #or 'sepsis' in x
+    #print df.columns
+    pr=[x for x in df.columns if 'PROTEIN' in x][0]
+    ag=[x for x in df.columns if 'age' in x][0]
+    gnd=[x for x in df.columns if 'gender' in x][0]
+    sps=[x for x in df.columns if 'sepsis' in x][0]
+    proteins=np.array(df.pop(pr))
+    age=np.array(df.pop(ag))
+    gender=np.array(df.pop(gnd))
+    sepsis=np.array(df.pop(sps))
+    X=np.array(df)
+
+    label_sum=np.zeros(n)
+    m_sum=np.zeros(n)
+    m=np.zeros(len(df))
+    
+    m_index = -1
+    for x in range(len(df.columns)):
+        if 'mort_adm' in df.columns[x]:
+            m_index = x
+
+    print m_index
+    for i in range(len(df)):
+        if X[i][m_index]==1:
+            m[i]+=1
+
+    df=df.drop('mort_adm',axis=1)
+    X=np.array(df)
+    scaler=sklearn.preprocessing.StandardScaler()
+    X=scaler.fit_transform(X)
+
+    kmeans=KMeans(n_clusters=n,random_state=0).fit(X)
+    l=kmeans.labels_
+    c=kmeans.cluster_centers_
+    ndf=pd.DataFrame(columns=['rows'])
+    unscaledX=np.array(df)
+    cluster_list=[[] for i in range(n)]
+    pr_list,gender_list,age_list,sepsis_list  =np.zeros(n),np.zeros(n),np.zeros(n),np.zeros(n)
+    props=[]
+    
+    
+    for j in range(n):
+        for i in range(len(df)):
+            if l[i]==j:
+                label_sum[j]+=1
+                if m[i]==1:
+                    m_sum[j]+=1
+                pr_list[j]+=proteins[i]
+                age_list[j]+=age[i]
+                gender_list[j]+=gender[i]
+                cluster_list[j].append(unscaledX[i])
+                sepsis_list[j]+=sepsis[i]
+
+    print sum(m_sum)
+    m_sum=np.divide(m_sum,label_sum)
+    label_per=label_sum/float(len(l))*100
+    for i in range(n):
+        pr_list[i]=pr_list[i]/float(label_sum[i])
+        gender_list[i]=gender_list[i]/float(label_sum[i])
+        age_list[i]=age_list[i]/float(label_sum[i])
+        sepsis_list[i]=sepsis_list[i]/float(label_sum[i])
+
+    ndf['rows']=list(df.columns)+['sepsis','age','gender','protein_mean','% of patients','num of patients','% mortality']
+
+    i=0
+    for cluster in c:
+        ndf['cluster'+str(i)]=1
+        ndf['cluster'+str(i)]=list(cluster)+[sepsis_list[i]]+[age_list[i]]+[gender_list[i]]+[pr_list[i]]+[label_per[i]]+[label_sum[i]]+[m_sum[i]]
+        i+=1
+    from scipy import stats
+    for i in range(n):
+        k=0
+        for j in range(n):
+            if j!=i:
+                if k==0:
+                    rest_data=np.array(cluster_list[j])
+                    print rest_data.shape
+                    k=1
+                else:
+                    rest_data=np.concatenate((rest_data,np.array(cluster_list[j])))
+                    #print rest_data.shape
+        ttest= stats.ttest_ind(np.array(cluster_list[i]),rest_data)
+        pvalues=ttest[1]
+        print "cluster"+str(i)
+        cluster_features=[]
+        for p in range(len(pvalues)):
+            if pvalues[p]<0.025:
+                cluster_features.append((df.columns[p],ttest[0][p],np.abs(ttest[0][p])))
+        cluster_features=sorted(cluster_features,key=itemgetter(2))[-10:]
+        positive, negative = [],[]
+        cur_props={}
+        for f in cluster_features:
+            if f[1]>0:
+                positive.append(f)
+            else:
+                negative.append(f)
+            #print f
+        cur_props['positive'] = positive
+        cur_props['negative'] = negative
+        #print cur_props
+        props.append(cur_props)
+    df_cols = ndf.columns
+    ndf=ndf.append(pd.DataFrame([['main features']+props],columns=df_cols))
+    return ndf, kmeans
+
+
+ndf,model=make_clusters(6,db)
+print(ndf)
+f=open(r'C:\Users\veronica\Desktop\study\Sadna\clustering_model.model','wb')
+pickle.dump(model,f)
+f.close()
+import datetime
+properties=ndf.to_dict('records')
+clustering_model={"name":"clustering_model",
+              "last_trained": str(datetime.datetime.now()),
+              "path": r'C:\Users\veronica\Desktop\study\Sadna\clustering_model.model',
+              "properties": properties
+             }
+db.models_collection.insert_one(clustering_model)
+
+###############################################################################################
+
+#run and save sepsis model
+import pymongo
+from pymongo import MongoClient
+client = MongoClient()
+db=client.icu_db
+
+df=pd.DataFrame(list(db.all_feats_collection.find()))#all_people_with_and_without_apache_filled_medians.csv,full_dataset_replace_missing_with_medians.csv, final_dataset_with_medians030117
+df=df.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or 'protein' in x or 'APACHE' in x or 'mort_adm' in x)],axis=1)#'APACHE' in x or
+df['chronic-category']=(df['chronic-category']>0).astype(int)
+df=df[df['dayNum']==1]
+df['sepsis-categorical']=df['sepsis-categorical'].apply(lambda x: 1 if x>=1 else 0)
+train,test=df[df['temp_adm_num']<2013000000], df[df['temp_adm_num']>=2013000000]
+#train=train.drop_duplicates(subset='temp_adm_num')
+#test=test.drop_duplicates(subset='temp_adm_num')
+
+y_train,y_test=train.pop('sepsis-categorical'), test.pop('sepsis-categorical')
+
+from sklearn import preprocessing
+scaler=preprocessing.MinMaxScaler()
+
+train,test=train.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore'), test.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore')
+print train.shape,test.shape
+
+xgdmat = xgb.DMatrix(train, y_train)
+our_params = {'eta': 0.01, 'seed':0, 'subsample': 0.8, 'colsample_bytree': 0.8, 
+         'objective': 'binary:logistic', 'max_depth':7, 'min_child_weight':1} 
+final_gb = xgb.train(our_params, xgdmat, num_boost_round = 1200)
+testdmat = xgb.DMatrix(test)
+y_pred = final_gb.predict(testdmat)
+
+roc2=roc_auc_score(y_test,y_pred)
+from sklearn.metrics import roc_curve
+fpr, tpr, _ = roc_curve(y_test, y_pred)
+plt.figure()
+lw=2
+plt.plot(fpr, tpr, color='darkorange',
+         lw=lw, label='ROC curve (area = %0.2f)' % roc2)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+#plt.title('Sepsis prediction based on first day')
+plt.legend(loc="lower right")
+plt.savefig(r'C:\Users\veronica\Desktop\study\Sadna\sepsis_roc_curve.png')
+pickle.dump(final_gb, open(r'C:\Users\veronica\Desktop\study\Sadna\sepsis_model.model', "wb"))
+xgb.plot_importance(final_gb).figure.savefig(r'C:\Users\veronica\Desktop\study\Sadna\sepsis_feature_importance.png')
+y_pred_binary=y_pred
+y_pred_binary[y_pred_binary > 0.5] = 1
+y_pred_binary[y_pred_binary <= 0.5] = 0
+acc=accuracy_score(y_pred_binary, y_test)
+import datetime
+sepsis_model={"name":"sepsis_model",
+              "accuracy": acc,
+              "auc": roc2,
+              "last_trained": str(datetime.datetime.now()),
+              "path": r'C:\Users\veronica\Desktop\study\Sadna\sepsis_model.model',
+              "features_importance_path": r'C:\Users\veronica\Desktop\study\Sadna\sepsis_feature_importance.png',
+              "roc_auc_curve_path": r'C:\Users\veronica\Desktop\study\Sadna\sepsis_roc_curve.png'
+             }
+db.models_collection.insert_one(sepsis_model)
+
+###########################################################################################################333
+
+# run and save mortality model
+#client = MongoClient()
+#db=client.icu_db
+
+df=pd.DataFrame(list(db.all_feats_collection.find()))#all_people_with_and_without_apache_filled_medians.csv,full_dataset_replace_missing_with_medians.csv, final_dataset_with_medians030117
+df=df.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or 'PROTEINI' in x or 'protein' in x or 'APACHE' in x or 'sepsis-categorical' in x)],axis=1)#'APACHE' in x or
+df['chronic-category']=(df['chronic-category']>0).astype(int)
+df=df[df['dayNum']==1]
+df['sepsis-categorical']=df['sepsis-categorical'].apply(lambda x: 1 if x>=1 else 0)
+train,test=df[df['temp_adm_num']<2013000000], df[df['temp_adm_num']>=2013000000]
+
+y_train,y_test=train.pop('mort_adm'), test.pop('mort_adm')
+
+from sklearn import preprocessing
+scaler=preprocessing.MinMaxScaler()
+
+train,test=train.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore'), test.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore')
+print train.shape,test.shape
+
+xgdmat = xgb.DMatrix(train, y_train)
+our_params = {'eta': 0.01, 'seed':0, 'subsample': 0.8, 'colsample_bytree': 0.8, 
+         'objective': 'binary:logistic', 'max_depth':7, 'min_child_weight':1} 
+final_gb = xgb.train(our_params, xgdmat, num_boost_round = 1200)
+testdmat = xgb.DMatrix(test)
+y_pred = final_gb.predict(testdmat)
+
+roc2=roc_auc_score(y_test,y_pred)
+from sklearn.metrics import roc_curve
+fpr, tpr, _ = roc_curve(y_test, y_pred)
+plt.figure()
+lw=2
+plt.plot(fpr, tpr, color='darkorange',
+         lw=lw, label='ROC curve (area = %0.2f)' % roc2)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+#plt.title('Sepsis prediction based on first day')
+plt.legend(loc="lower right")
+plt.savefig(r'C:\Users\veronica\Desktop\study\Sadna\mortality_roc_curve.png')
+pickle.dump(final_gb, open(r'C:\Users\veronica\Desktop\study\Sadna\mortality_model.model', "wb"))
+xgb.plot_importance(final_gb).figure.savefig(r'C:\Users\veronica\Desktop\study\Sadna\mortality_feature_importance.png')
+y_pred_binary=y_pred
+y_pred_binary[y_pred_binary > 0.5] = 1
+y_pred_binary[y_pred_binary <= 0.5] = 0
+acc=accuracy_score(y_pred_binary, y_test)
+import datetime
+mortality_model={"name":"mortality_model",
+              "accuracy": acc,
+              "auc": roc2,
+              "last_trained": str(datetime.datetime.now()),
+              "path": r'C:\Users\veronica\Desktop\study\Sadna\mortality_model.model',
+              "features_importance_path": r'C:\Users\veronica\Desktop\study\Sadna\mortality_feature_importance.png',
+              "roc_auc_curve_path": r'C:\Users\veronica\Desktop\study\Sadna\mortality_roc_curve.png'
+             }
+db.models_collection.insert_one(mortality_model)
+
+##########################################################################################################
+
+###predict mortality X days before mortality###
+ndf=pd.DataFrame(columns=['days','AUC_xgboost'])
+df3=pd.DataFrame(list(db.all_feats_collection.find()))#all_people_with_and_without_apache_filled_medians.csv,full_dataset_replace_missing_with_medians.csv, final_dataset_with_medians030117
+df3=df3.drop([x for x in df3.columns if ('mort_adm' in x or '_id' in x or 'Unnamed' in x or 'PROTEINI' in x or 'protein' in x or 'APACHE' in x or 'sepsis-categorical' in x)],axis=1)#'APACHE' in x or
+df['chronic-category']=(df['chronic-category']>0).astype(int)
+for i in range(1,21):
+    df=df3.drop([x for x in df3.columns if 'MortDay' in x and 'In'+str(i)+'Days' not in x],axis=1)
+    train,test=df[df['temp_adm_num']<2013130000], df[df['temp_adm_num']>=2013130000]
+    train,test=train.drop(['temp_adm_num'],axis=1), test.drop(['temp_adm_num'],axis=1)
+    y_train,y_test=train.pop('isIn'+str(i)+'DaysMortDay'), test.pop('isIn'+str(i)+'DaysMortDay')
+
+    xgdmat = xgb.DMatrix(train, y_train)
+    our_params = {'eta': 0.1, 'seed':0, 'subsample': 0.8, 'colsample_bytree': 0.8, 
+             'objective': 'binary:logistic', 'max_depth':5, 'min_child_weight':1} 
+    final_gb = xgb.train(our_params, xgdmat, num_boost_round = 600)
+	if i==3:
+		pickle.dump(final_gb, open(r'C:\Users\veronica\Desktop\study\Sadna\3days_mortality_model.model', "wb"))
+    testdmat = xgb.DMatrix(test)
+    y_pred = final_gb.predict(testdmat)
+    roc2=roc_auc_score(y_test,y_pred)
+    
+    ndf=ndf.append(pd.DataFrame([[i,roc2]],columns=['days','AUC_xgboost']))
+    
+
+plt.plot(ndf['days'],ndf['AUC_xgboost'])
+import datetime
+daysForward_model={"name":"daysForward_model",
+              "last_trained": str(datetime.datetime.now()),
+              "days": list(ndf["days"]), #to later plot the graph using plt.plot(days,AUCs)
+              "AUCs": list(ndf['AUC_xgboost']),
+			  "path": r'C:\Users\veronica\Desktop\study\Sadna\3days_mortality_model.model'
+             }
+db.models_collection.insert_one(daysForward_model)

@@ -28,6 +28,9 @@ body{
 	padding: 40px;
 	margin: 75px;
 	color: #33cccc;
+	margin-left: auto;
+	margin-right: auto;
+	width: 850px;
 	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
 	vertical-align: middle;
 	background-color: rgba(255, 255, 255, 0.9);
@@ -38,13 +41,21 @@ body{
 	border-radius: 25px;
 	padding: 35px;
 	margin: 100px;
-	margin-left: 275px;
-	margin-right: 275px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 550px;
 	color: #33cccc;
 	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
 	vertical-align: middle;
 	background-color: rgba(255, 255, 255, 1);
 	align-self: center;
+}
+
+#getPatientButton{
+	width:250px;
+	margin-top:35px;
+	margin:auto;
+	color:#33cccc;
 }
 
 #button{
@@ -65,13 +76,29 @@ body{
 .info{
 	border-radius: 0px 10px 10px 10px;
 	padding: 35px;
-	margin: 30px;
+	margin: 150px;
 	margin-top: 0px;
 	color: #33cccc;
 	box-shadow: 8px 6px 12px 0px rgba(0, 0, 0, 0.2);
 	vertical-align: middle;
 	background-color: rgba(255, 255, 255, 1);
 	align-self: center;
+}
+
+ul {
+	column-count: 2;
+	column-gap: 2.5em;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+}
+
+th{
+		text-align:center;
+		font-size: 14px;
+}
+
+td{
+	font-size: 10px;
 }
 
 #infoNav{
@@ -122,6 +149,34 @@ body{
 	background-image: url("../img/infobg.jpg");
 }
 
+#dropdownMenuButton{
+	border-color: #33cccc;
+	color: #33cccc;
+	background-color: white ;
+	float: left;
+	margin:0px;
+	display: inline-block;
+	vertical-align: text-bottom;
+}
+
+#dropdownItem{
+	color: inherit;
+}
+
+#historyDates{
+	color: #33cccc;
+	background-color: white ;
+	align-content: center;
+	margin:0px;
+
+}
+
+.dropup,
+.dropdown {
+  position: relative;
+
+}
+
 .main{
 	position: sticky;
 }
@@ -135,6 +190,19 @@ body{
 	position: fixed;
   top: 0;
 	background-color: grey;
+}
+
+.model_stats{
+	display: inline-block;
+	width: 50%;
+	align-content: center;
+	margin: 25px;
+}
+
+.modal-image img {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
 

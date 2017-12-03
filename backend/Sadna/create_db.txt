@@ -1,0 +1,293 @@
+### need to change all the paths to your machine
+
+import pandas as pd
+import numpy as np
+import glob
+import hashlib
+
+# hash patients' IDs
+
+for filename in glob.glob(r'C:\Users\veronica\Documents\ICU data\icu_mort.csv'):
+    print(filename)
+    df=pd.read_csv(filename)
+    if u'מספר אשפוז' in df.columns:
+        df[u'מספר אשפוז']=df[u'מספר אשפוז'].apply(lambda x: hashlib.md5(str(x)).hexdigest())
+    if 'MR Number' in df.columns:
+        df['MR Number']=df['MR Number'].apply(lambda x: hashlib.md5(str(x)).hexdigest())
+    if 'mr number' in df.columns:
+        df['MR Number']=df['mr number'].apply(lambda x: hashlib.md5(str(x)).hexdigest())
+    if 'ID' in df.columns:
+        df['ID']=df['ID'].apply(lambda x: hashlib.md5(str(x)).hexdigest())
+    if 'adm.num' in df.columns:
+        df['adm.num']=df['adm.num'].apply(lambda x: hashlib.md5(str(x)).hexdigest())
+    
+    df=df.drop([u'שם החולה','Admission_Number (an)','name','adm.num.long'],axis=1,errors='ignore')
+    print df.head(5)
+    df.to_csv(r'C:\Users\veronica\Documents\ICU data\\'+filename.split("\\")[-1]+'_discreet.csv', encoding='utf-8')
+
+# edit demographic file
+df=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\icu_mort_discreet.csv')
+from datetime import timedelta
+df['mortality.date2']=pd.to_datetime(df['mortality.date'],format="%d/%m/%Y").dt.date
+df['dis.unit2']=pd.to_datetime(df['dis.unit'],format="%d/%m/%Y").dt.date
+#df['diff']=df['mortality.date2']-df['dis.unit2']
+def f(df):
+    if (pd.isnull(df['mortality.date2']))   :
+        val=0
+    elif df['mortality.date2']>df['dis.unit2']:
+        val=0
+    else:
+        val=1
+    return val
+df['mort.adm']=df.apply(f,axis=1)
+df.to_csv(r'C:\Users\veronica\Documents\ICU data\icu_mort_edited2.csv')
+
+# format xsl files to csvs
+
+dfc=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\icu_mort_edited2.csv')
+for filename in glob.glob(r'C:\Users\veronica\Documents\ICU data\120117\*.xlsx'):
+    print(filename)
+    dfe= pd.read_excel(filename)
+    dfe=dfe.rename(columns={u'זמן':'Time'}) #rename for convention
+    dfe=dfe.rename(columns={u'זמן התחלה':'Time'})
+    dfe=dfe.rename(columns={u'תאריך':'Time'})
+    dfe=dfe.rename(columns={'MR Number':u'מספר אשפוז'})
+    dfe['day']=dfe['Time'].dt.date
+    dfe['year']=dfe['Time'].dt.year
+    dfe=dfe.groupby([u'מספר אשפוז','day'], as_index=False).mean()
+    dfm=pd.merge(dfe,dfc,left_on=[u'מספר אשפוז','year'], right_on=['ID','adm.year']) #inner join
+    dfm2=pd.merge(dfe,dfc,left_on=[u'מספר אשפוז','year'], right_on=['adm.num','adm.year'])
+    dfm3=dfm.append(dfm2)
+
+    dfm3.to_csv(r'C:\Users\veronica\Documents\ICU data\full_csvs3\\'+filename.split("\\")[-1]+'.csv', encoding='utf-8')
+	
+dfc=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\icu_mort_edited2.csv')
+for filename in glob.glob(r'C:\Users\veronica\Documents\ICU data\120117\*.xls'):
+    print(filename)
+    dfe= pd.read_excel(filename)
+    dfe=dfe.rename(columns={u'זמן':'Time'}) #rename for convention
+    dfe=dfe.rename(columns={u'זמן התחלה':'Time'})
+    dfe=dfe.rename(columns={u'תאריך':'Time'})
+    dfe=dfe.rename(columns={'MR Number':u'מספר אשפוז'})
+    dfe['day']=dfe['Time'].dt.date
+    dfe['year']=dfe['Time'].dt.year
+    dfe=dfe.groupby([u'מספר אשפוז','day'], as_index=False).mean()
+    dfm=pd.merge(dfe,dfc,left_on=[u'מספר אשפוז','year'], right_on=['ID','adm.year']) #inner join
+    dfm2=pd.merge(dfe,dfc,left_on=[u'מספר אשפוז','year'], right_on=['adm.num','adm.year'])
+    dfm3=dfm.append(dfm2)
+
+    dfm3.to_csv(r'C:\Users\veronica\Documents\ICU data\full_csvs3\\'+filename.split("\\")[-1]+'.csv', encoding='utf-8')
+	
+# combine files that were too big
+df1=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Respiratory_rate(01.01.04-01.01.10)_OK.xls.csv')
+df2=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Respiratory_rate(01.01.10-01.07.16)_OK.xls.csv')
+df1=df1.append(df2)
+df1.to_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Respiratory_rate(01.01.04-01.07.16)_OK.xls.csv',encoding='utf-8')
+
+df1=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Saturation+(01.01.14-01.01.04)_OK.xls.csv')
+df2=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Saturation+(01.01.14-01.07.16)_OK.xls.csv')
+df1=df1.append(df2)
+df1.to_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\Saturation+(01.07.16-01.01.04)_OK.xls.csv',encoding='utf-8')
+
+df1=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\HR(01.01.04-01.01.10)_OK.xls.csv')
+df2=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\HR(01.01.10-01.07.16)_OK.xls.csv')
+df1=df1.append(df2)
+df1.to_csv(r'C:\Users\veronica\Documents\ICU data\hourly_csvs\HR(01.01.04-01.07.16)_OK.xls.csv',encoding='utf-8')
+
+# create the final table
+def create_one_excel(): 
+	from datetime import timedelta
+
+	df=pd.DataFrame()
+	df=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\full_csvs3\Calcium(01.07.16-01.01.04)_OK.xls.csv')
+	b=0
+	df['adm.unit']=pd.to_datetime(df['adm.unit'])
+	df['birth.date']=pd.to_datetime(df['birth.date'])
+	print df['adm.unit'].dtype, df['birth.date'].dtype
+	df['age2']=df['adm.unit'].dt.year - df['birth.date'].dt.year
+	dfg=pd.get_dummies(df['gender'])
+	df=pd.concat([df,dfg],axis=1)
+	del df['birth.date'],df['M'],df['gender']
+	df=df.rename(columns={'F':'gender'})
+	df['day']=pd.to_datetime(df.day)
+	for filename in glob.glob(r'C:\Users\veronica\Documents\ICU data\full_csvs3\*.csv'):
+		print(filename)
+		dft=pd.read_csv(filename,low_memory=False)
+		if('Unnamed' in dft.columns):
+			del dft['Unnamed']
+		if('OK_Time' in dft.columns):
+			del dft['OK_Time']
+		
+		dft=dft.drop(['Admission_Number (an)','Unnamed: 7_x','Unnamed: 0','Unnamed: 0.1','adm.unit_x',u'מספר אשפוז',u'מספר אשפוז_y','adm.unit_y','dis.unit_x','dis.unit_y','adm.unit','dis.unit','birth.date','gender'],axis=1,errors='ignore')
+		df=df.drop(['Admission_Number (an)'],axis=1,errors='ignore')
+		dft['day']=pd.to_datetime(dft.day)
+		df=pd.merge(df, dft, left_on=['adm.num','day'], right_on=['adm.num','day'],how='outer')
+		print df.shape
+
+	df=df.rename(columns={'chronic_category':'chronic-category'})
+	df=df.rename(columns={'sepsis_categorical':'sepsis-categorical'})
+	df['day']=pd.to_datetime(df['day'],format="%m/%d/%Y")
+	df['year']=df['day'].dt.year
+	if 'Calcium (mg/ml)_x' in df.columns:
+		df['Calcium (mg/ml)']=df['Calcium (mg/ml)_x']
+
+	df=df.drop([col for col in df.columns if ('_' in col or 'ID' in col or 'mort.adm' in col or 'age' in col or 'gender' in col or 'mortality.date'in col or 'adm.unit' in col or 'adm.year' in col)],axis=1)
+	dfi=pd.read_csv(r'C:\Users\veronica\Documents\ICU data\icu_mort_edited2.csv')
+
+	df=pd.merge(df, dfi, left_on=['adm.num','year'], right_on=['adm.num','adm.year'],how='outer')
+
+	df['isMortDay']=pd.to_datetime(df['mortality.date']).dt.date-df['day'].dt.date
+	df['dayNum']=df['day'].dt.date-pd.to_datetime(df['adm.unit'],format="%d/%m/%Y").dt.date
+	df.to_csv('tmp.csv')
+
+	def makeBool(x,i):
+		if not (pd.isnull(x)):
+			if(x<=np.timedelta64(timedelta(days=i)) and x>=np.timedelta64(timedelta(days=0))):
+				return 1
+			else:
+				return 0
+		else:
+			return 0
+	def makeBool2(x):
+		if not(pd.isnull(x)):
+			if(x==np.timedelta64(timedelta(days=0))):
+				return 1
+			else:
+				return 0
+		else:
+			return 0
+
+	for j in range(1,21):   
+		df['isIn'+str(j)+'DaysMortDay']=df['isMortDay'].apply(makeBool,i=j)
+
+	df['isMortDay']=df['isMortDay'].map(makeBool2)
+	df['adm.unit']=pd.to_datetime(df['adm.unit'])
+	df['birth.date']=pd.to_datetime(df['birth.date'])
+
+	df['age2']=df['adm.unit'].dt.year - df['birth.date'].dt.year
+	dfg=pd.get_dummies(df['gender'])
+	df=pd.concat([df,dfg],axis=1)
+	del df['birth.date'],df['M'],df['gender'],df['ID']
+	df=df.rename(columns={'F':'gender2'})
+
+	df=df.drop([col for col in df.columns if 'Unnamed' in col],axis=1)
+	df=df.drop([col for col in df.columns if 'gender_' in col],axis=1)
+	df=df.drop([col for col in df.columns if 'מספר אשפוז' in col],axis=1)
+
+	return df
+
+df=create_one_excel()
+def cleaning(df):
+	df=df.drop(['Unnamed: 0','mortality.date','adm.year','adm.unit','year'],axis=1,errors='ignore')
+	df=df[pd.notnull(df['day'])] #values without day are values from icu_mort.csv that are not in feature csvs
+	df['dayNum']=pd.to_timedelta(df['dayNum'])
+	df['dayNum']=df['dayNum'].astype('timedelta64[D]')
+	df['dayNum']=df['dayNum'].astype(int)
+	df=df[df['dayNum']>=0] #delete negative dayNums
+	pd.set_option("display.max_columns",70)
+	df.sort_values(['adm.num','dayNum'], axis=0, ascending=[True,True], inplace=True, kind='quicksort', na_position='last')
+
+	# delete layouts
+	df=df[df['day']!='NaN']
+	df=df.drop(['Chloride (mmol/l)'],axis=1,errors='ignore') #3113 full examples
+	df=df.drop(['Pre-albumin (mg/dl)'],axis=1) # 9060 full examples
+	df['temp_adm_num']=df['adm.num']
+	df=df[df['PH (ABG)']<10]
+	df=df[df['Arterial Pressure Diastolic (mmHg)']>10]
+	df=df[df['Arterial Pressure Systolic (mmHg)']>10] 
+
+	# feel missing values with personal means and general medians
+	f=lambda x: x.fillna(x.mean())
+	df=df.append(pd.get_dummies(df['chronic-category']))
+	df=df.groupby('adm.num').transform(f)
+	df['isVentilated']=df['isVentilated'].fillna(0)
+	df['sepsis-categorical']=df['sepsis-categorical'].fillna(0)
+	df=df.drop(['Temperature','Chloride (mmol/l)'],axis=1,errors='ignore')
+	for col in df.columns[2:]:
+		df[col]=df3[col].fillna(df[col].median())
+	df['Total Haemoglobin']=df['Total Haemoglobin'].fillna(df['Total Haemoglobin'].median())
+	df['APACHE II']=df['APACHE II'].fillna(-1)
+	return df
+
+df=cleaning(df)
+
+# create engineered features
+def create_engineered_features(df2):
+	df=df2.copy()
+	df=df.drop(['Unnamed: 0'],axis=1)
+	b=df.columns
+	df=df.drop(['day'],axis=1,errors='ignore')
+	c=df.columns[:-26]
+	diff=(df.groupby(['temp_adm_num'],sort=False,as_index=False).pct_change().add_suffix("_diff"))
+	diff=diff.drop(['isMortDay_diff'],axis=1)
+	diff=diff.drop([x for x in diff.columns if 'MortDay_diff' in x],axis=1)
+	diff=diff.drop(['gender_diff'],axis=1,errors='ignore')
+	diff=diff.drop(['temp_adm_num_diff'],axis=1,errors='ignore')
+	df=df.join(diff)
+	last3mean=(df.groupby(['temp_adm_num'])[diff.columns].rolling(3).mean().reset_index(drop=True).add_suffix('_last3'))
+	df=df.join(last3mean)
+
+	for x in c:
+		df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)[x].transform('cummax'),rsuffix="_max")
+		df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)[x].transform('cummin'),rsuffix="_min")
+		df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)[x].transform(pd.expanding_mean),rsuffix="_mean")
+		df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)[x].transform(pd.expanding_std),rsuffix="_std")
+		df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)[x].transform(lambda y: y.iloc[0]),rsuffix="_first")
+		df[x+"_diff_from_first"]=(df[x]-df[x+"_first"])/df[x+"_first"] 
+
+	df['MAP']=df['Arterial Pressure Diastolic (mmHg)']*2/3 + df['Arterial Pressure Systolic (mmHg)']/3
+		
+	for x in b:
+		df=df.drop([x+'_first'],axis=1,errors='ignore')
+	df=df.join(df.groupby(['temp_adm_num'],sort=False,as_index=False)['gender'].transform(pd.expanding_count),rsuffix="_count")
+	df=df.rename(columns={'gender_count':'day_num_featured'})
+	return df
+	
+if CREATE_ENGINEERED = True:
+	df_eng = create_engineered_features(df)
+	
+def pred_gen_mort(row): ### when presenting the general mortality predictions in the website, make sure to take only those with dayNum == 1
+	row=row.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or 'PROTEINI' in x or 'protein' in x or 'APACHE' in x or 'sepsis-categorical' in x)],axis=1)#'APACHE' in x or
+	row['chronic-category']=(row['chronic-category']>0).astype(int)
+	row['sepsis-categorical']=row['sepsis-categorical'].apply(lambda x: 1 if x>=1 else 0)
+	row=row.drop(['temp_adm_num','APACHE II','mort_adm'],axis=1,errors='ignore')
+	model = pickle.load(open(db.models_collection.mortality_model.path,'rb'))
+	return model.predict(row)
+	
+#def pred_sepsis(row): 
+#	row=row.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or 'PROTEINI' in x or 'protein' in x or 'APACHE' in x or 'sepsis-categorical' in x)],axis=1)#'APACHE' in x or
+#	row['chronic-category']=(row['chronic-category']>0).astype(int)
+#	row=row.drop(['temp_adm_num','APACHE II','mort_adm','sepsis-categorical'],axis=1,errors='ignore')
+#	model = pickle.load(open(db.models_collection.sepsis_model.path,'rb'))
+#	return model.predict(row)
+	
+def pred_3days_forward_mort(row):
+	row=row.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or 'PROTEINI' in x or 'protein' in x or 'APACHE' in x or 'sepsis-categorical' in x)],axis=1)#'APACHE' in x or
+	row['chronic-category']=(row['chronic-category']>0).astype(int)
+	row['sepsis-categorical']=row['sepsis-categorical'].apply(lambda x: 1 if x>=1 else 0)
+	row=row.drop(['temp_adm_num','APACHE II','mort_adm'],axis=1,errors='ignore')
+	model = pickle.load(open(db.models_collection.daysForward_model.path,'rb'))
+	return model.predict(row)
+	
+def assign_cluster(row):
+	import pickle
+	row['chronic-category']=(row['chronic-category']>0).astype(int)
+    row=row.drop([x for x in row.columns if 'MortDay' in x or 'Unnamed' in x or 'mort' in x \
+                     or 'age' in x or 'gender' in x or 'PROTEIN' in x or 'KCAL' in x \
+                     or 'sepsis' in x or 'APACHE' in x or 'dayNum' in x or 'adm_num' in x or '_id' in x],axis=1)
+    model = pickle.load(open(db.models_collection.clustering_model.path,'rb'))
+	return model.predict(row)
+	
+# upload to DB
+from pymongo import MongoClient
+client = MongoClient()
+db=client.icu_db
+df['mortality_prediction'] = df.transform(pred_gen_mort)
+df['next3days_mortality_prediction'] = df.transform(pred_3days_forward_mort)
+df['cluster'] = df.transform(assign_cluster)
+df['sepsis_prediction']=df.transform(pred_sepsis)
+db.all_feats_collection.remove()
+df=df.rename(columns={"mort.adm":"mort_adm"})
+db.all_feats_collection.insert_many(df.to_dict('records'))
+db.all_patients_collection.remove()
+db.all_patients_collection.insert_many(dfc.to_dict('records'))

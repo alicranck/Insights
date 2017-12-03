@@ -1,1 +1,36 @@
-<h1> some content here</h1>
+<div ng-app="myAppPatientInfo" ng-controller="historyCtrl">
+  <h5> Mortality predictions for last days:</h5>
+  <div id="mortalityHistory" max-height="200" max-width="80%">
+  </div>
+  <div style="display:inline-block; vertical-align:25px margin-right:20px">
+    <p>To get specific information please select a date:</p>
+  </div>
+  <div class="dropup" style="display:inline-block; vertical-align:middle">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Date
+  </button>
+    <div class="dropdown-menu" id="historyDates" aria-labelledby="dropdownMenuLink">
+    </div>
+  </div>
+  <div id=historyAt></div>
+</div>
+
+
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document" style="width:80%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historyModalLabel">Measurements</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div style="padding:15px">
+        <ul id="historyModal-body"></ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,12 +11,21 @@
   <script src="https://code.angularjs.org/1.5.5/angular-route.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
-  <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.3/angular-ui-router.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.19.1/moment.min.js"></script>
   <script src="..\static\js\app.js"></script>
   <script src="..\static\js\myAppHome.js"></script>
   <script src="..\static\js\login\myAppLogin.js"></script>
   <script src="..\static\js\patientInfo\myAppPatientInfo.js"></script>
   <script src="..\static\js\modelInfo\myAppModelInfo.js"></script>
+  <script src="..\static\js\patientInfo\historyCtrl.js"></script>
+  <script src="..\static\js\patientInfo\statusCtrl.js"></script>
+  <script src="..\static\js\modelInfo\clustersCtrl.js"></script>
+  <script src="..\static\js\modelInfo\modelsCtrl.js"></script>
+
+
+
 
 </head>
 
@@ -38,10 +47,7 @@
           <a class="nav-link" href="/#/getPatient" id="navbarNav">Patient Information</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/#/modelInfo" id="navbarNav">Model Information</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/#/about" id="navbarNav">About</a>
+          <a class="nav-link" href="/#/modelInfo/models" id="navbarNav">Model Information</a>
         </li>
       </ul>
     </div>

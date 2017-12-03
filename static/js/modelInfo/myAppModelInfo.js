@@ -10,45 +10,49 @@ myApp.factory('getModelInfo', ['$http', function($http) {
     lastUpdate: "",
   };
 
+  var message = ""
+
   return {
     model: model
   }
 }])
 
-myApp.controller('modelsCtrl', ['$scope', '$http', '$state', 'getModelInfo', function($scope, $http, $state, getModelInfo) {
 
-  $scope.model = getModelInfo.model;
-  $scope.message = '';
-
-}])
-
-myApp.run(['$http', '$state', 'getModelInfo', function($http, $state, getModelInfo) {
-  $http({
-    method: 'POST',
-    url: "/getModelInfo",
-    data: JSON.stringify(),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then(function(response) {
-    if (response.data != "null") {
-      getModelInfo.model = response.data;
-    } else {
-      $scope.message = "Model does not exist in records"
-    }
-  }, function(error) {
-    $scope.message = error;
-  })
-}])
-
-myApp.controller('clustersCtrl', ['$scope', '$http', '$state', 'getModelInfo', function($scope, $http, $state, getModelInfo) {
-
-  $scope.model = getModelInfo.model;
-
-}])
 
 myApp.controller('statsCtrl', ['$scope', '$http', '$state', 'getModelInfo', function($scope, $http, $state, getModelInfo) {
 
-  $scope.model = getModelInfo.model;
+  $scope.dailyUpdate = function() {
+    $http({
+      method: 'POST',
+      url: "/dailyUpdate",
+      data: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function(response) {
+      if (response.data.status == "OK") {
+        console.log("OK");
+      } else {
+        console.log("Error")
+      }
+    }, function(error) {})
+  };
+
+  $scope.updateModels = function() {
+    $http({
+      method: 'POST',
+      url: "/updateModels",
+      data: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function(response) {
+      if (response.data.status == "OK") {
+        console.log("OK");
+      } else {
+        console.log("Error")
+      }
+    }, function(error) {})
+  };
 
 }])
