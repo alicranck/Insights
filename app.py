@@ -49,6 +49,9 @@ models_collection = db.models_collection
 
 
 @app.route("/getPatient",methods=['POST'])
+"""
+Gets a patient's personal details and history by ID
+"""
 def getPatient():
     json_data = request.get_json()
     patientID = hashlib.md5(str(int(json_data['id'])).encode()).hexdigest()
@@ -62,6 +65,9 @@ def getPatient():
 
 @app.route("/getPatientAt",methods=['POST'])
 def getPatientAt():
+    """
+    Gets a patient's history at a specific date.
+    """
     json_data = request.get_json()
     patientID = hashlib.md5(str(int(json_data['id'])).encode()).hexdigest()
     day_num = json_data['day_num']
@@ -74,6 +80,9 @@ def getPatientAt():
 
 @app.route("/getStatus",methods=['POST'])
 def getStatus():
+    """
+    gets patient current status and latest records
+    """
     json_data = request.get_json()
     patientID = hashlib.md5(str(int(json_data['id'])).encode()).hexdigest()
     doc = getPatientStatus(patientID)
@@ -90,6 +99,10 @@ def getStatus():
 
 @app.route("/getClustersInfo",methods=['POST'])
 def getClustersInfo():
+    """
+    load from database last update and most important features
+    of clustering model
+    """
     doc = list(models_collection.find({'name':'clustering_model'}))[0]
     if doc is None:
         return "null"
@@ -101,6 +114,10 @@ def getClustersInfo():
 
 @app.route("/getModelsInfo",methods=['POST'])
 def getModelsInfo():
+    """
+    loads from database last update, and model information (auc curve,
+     significant features) of mortality models.
+     """
     mortality_model, days_forward_model = getModelsMetaData()
     if mortality_model is None:
         return "null"
@@ -111,6 +128,9 @@ def getModelsInfo():
 
 @app.route("/attempLogin",methods=['POST'])
 def attempLogin() :
+    """
+    verify login credentials with DB.
+    """
     content = request.get_json()
     userID = content['id']
     password = content['password']
@@ -121,11 +141,18 @@ def attempLogin() :
 
 @app.route("/dailyUpdate", methods=['POST'])
 def dailyUpdate():
+    """
+    run daily update routine defined in backend_methods.py
+    """
     daily_update()
     return jsonify(status="OK")
 
 @app.route("/updateModels", methods=['POST'])
 def updateModels():
+    """
+    run periodicall model retraining defined in update_models()
+    method in backend_methods.py
+    """
     update_models()
     return jsonify(status="OK")
 
