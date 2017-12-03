@@ -20,15 +20,11 @@ db=client.icu_db
 
 #build and save clustering model
 def make_clusters(n,df):
-    #df=pd.DataFrame(list(db.all_feats_collection.find()))
     df=df[df['dayNum']==1]
-    #df=df.drop(['temp_adm_num','isMortDay'],axis=1)
     df=df.drop(['temp_adm_num','APACHE II'],axis=1,errors='ignore')
     df=df.drop([x for x in df.columns if 'KCAL' in x or 'mortality' in x or 'cluster' in x],axis=1)
     df['chronic-category']=(df['chronic-category']>0).astype(int)
-    #X=np.array(df)
     df=df.drop([x for x in df.columns if 'MortDay' in x or '_id' in x or 'Unnamed' in x or 'dayNum' in x or 'justification' in x],axis=1) #or 'sepsis' in x
-    #print df.columns
     pr=[x for x in df.columns if 'PROTEIN' in x][0]
     ag=[x for x in df.columns if 'age' in x][0]
     gnd=[x for x in df.columns if 'gender' in x][0]
@@ -123,10 +119,8 @@ def make_clusters(n,df):
                 positive.append(f)
             else:
                 negative.append(f)
-            #print f
         cur_props['positive'] = positive
         cur_props['negative'] = negative
-        #print cur_props
         props.append(cur_props)
     df_cols = ndf.columns
     ndf=ndf.append(pd.DataFrame([['main features']+props],columns=df_cols))
@@ -151,8 +145,6 @@ def build_clustering_model(df):
 
 
 # run and save mortality model
-#client = MongoClient()
-#db=client.icu_db
 def build_mortality_model(df):
 	df = df.drop([x for x in df.columns if ('_id' in x or 'MortDay' in x or 'Unnamed' in x or
                                             'PROTEINI' in x or 'protein' in x or 'APACHE' in x)],axis=1)
@@ -191,7 +183,6 @@ def build_mortality_model(df):
 	plt.ylim([0.0, 1.05])
 	plt.xlabel('False Positive Rate')
 	plt.ylabel('True Positive Rate')
-	#plt.title('Sepsis prediction based on first day')
 	plt.legend(loc="lower right")
 	plt.savefig(r''+projectPath+'\\backend\models\\mortality_roc_curve.png')
 	pickle.dump(final_gb, open(r''+projectPath+'\\backend\models\\mortality_model.model', "wb"))
@@ -316,16 +307,10 @@ def get_lr_params(xdf, ydf):
 		y_pred = y_pred_test
 		if lr_pred[np.argmax(lr_pred)] > 20:
 			max_delete = np.argmax(lr_pred)
-			# print "deleted value",lr_pred[max_delete],"at index",max_delete
-			# print "len y_pred_test",len(y_pred_test), len(lr_pred),len(y_pred_train)
 			lr_pred = np.delete(lr_pred, max_delete)
 			y_pred = np.delete(np.array(y_pred_test), max_delete)
 			test_lr = np.delete(test_lr, max_delete, 0)
-		# The mean squared error
-		# print("Mean squared error: %.2f"
-		# % np.mean((lr_pred - y_pred) ** 2))
-		# Explained variance score: 1 is perfect prediction
-		# print('Variance score: %.2f' % lr.score(test_lr, y_pred))
+
 		if lr.score(test_lr, y_pred) > max_var:
 			max_var = lr.score(test_lr, y_pred)
 			max_index = i
