@@ -8,10 +8,13 @@ features_collection = db.all_feats_collection
 users_collection = db.users
 models_collection = db.models_collection
 
+"""
+auxiliary services for handling requests from client and
+interacting with db
+"""
 
 # Get patient's mortality predictions for last 7 days
 def getPatientHistory(id):
-
     predictions = []
     ret = []
     docs = features_collection.find({"temp_adm_num":id})
