@@ -10,6 +10,8 @@ Sagol school of neuroscience. It is a decision support system for ICU, that uses
 XGBoost to predict mortality rates of patients based on different measured features
 as well as clustering the patients, potentially aiding in choosing treatment.
 
+The project was built using JS(Angular), Flask, and MongoDB. all backend code was written in Python 3.6
+
 The project structure is as follows:
 
   '/' contains 'app.py' script to deploy flask server, as well as all python files necessary 
